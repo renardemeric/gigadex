@@ -90,8 +90,8 @@ body{display:flex;flex-direction:column}
       4. Colle le token ici
     </div>
     <div class="modal-btns">
-      <button class="btn-ok" onclick="saveToken()">Connecter</button>
-      <button class="btn-cancel" onclick="closeModal()">Plus tard</button>
+      <button class="btn-ok" id="btn-connect">Connecter</button>
+      <button class="btn-cancel" id="btn-skip">Plus tard</button>
     </div>
     <a class="modal-link" href="https://github.com/settings/tokens/new?scopes=repo&description=GigaDex" target="_blank">Générer un token →</a>
   </div>
@@ -164,8 +164,16 @@ function loadLocal(){
   return false;
 }
 function saveLocal(){try{localStorage.setItem(SK,JSON.stringify(owned));}catch(e){}}
-function getToken(){return localStorage.getItem(TK_KEY)||'';}
-function setTokenStore(t){localStorage.setItem(TK_KEY,t);}
+function getToken(){
+  const m=document.cookie.match(/(?:^|; )gdx_tok=([^;]*)/);
+  return m?decodeURIComponent(m[1]):(localStorage.getItem(TK_KEY)||'');
+}
+function setTokenStore(t){
+  // Cookie valide 1 an + localStorage en double sécurité
+  const exp=new Date(Date.now()+365*24*60*60*1000).toUTCString();
+  document.cookie='gdx_tok='+encodeURIComponent(t)+';expires='+exp+';path=/;SameSite=Strict';
+  try{localStorage.setItem(TK_KEY,t);}catch(e){}
+}
 
 function setSyncUI(state,label){
   document.getElementById('sync-dot').className='sync-dot '+state;
@@ -252,6 +260,13 @@ function saveToken(){
   closeModal();
   loadFromGitHub();
 }
+document.addEventListener('DOMContentLoaded',function(){
+  document.getElementById('btn-connect').addEventListener('click',saveToken);
+  document.getElementById('btn-skip').addEventListener('click',closeModal);
+  document.getElementById('token-input').addEventListener('keydown',function(e){
+    if(e.key==='Enter')saveToken();
+  });
+});
 
 // ── Filters ──────────────────────────────────────────────────────────────────
 let af='all';
