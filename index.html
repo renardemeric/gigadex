@@ -1,27 +1,52 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/gh/PokeAPI/sprites@master/sprites/items/poke-ball.png">
+<link rel="apple-touch-icon" sizes="152x152" href="https://cdn.jsdelivr.net/gh/PokeAPI/sprites@master/sprites/items/poke-ball.png">
+<link rel="apple-touch-icon" sizes="180x180" href="https://cdn.jsdelivr.net/gh/PokeAPI/sprites@master/sprites/items/poke-ball.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="GigaDex">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#0d0d1a">
+<title>GigaDex — Emeric</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body-wrap{display:block}
-.app{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0d0d1a;color:#f0f0f0;min-height:600px;border-radius:12px;overflow:hidden}
-.hero{background:#1a0000;padding:12px 14px 10px;border-bottom:2px solid #CC0000;display:flex;align-items:center;gap:10px}
-.hero img{width:38px;height:38px;object-fit:contain}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{--red:#CC0000;--yellow:#FFCB05;--green:#27AE60}
+html,body{height:100%;overflow:hidden;background:#0d0d1a;color:#f0f0f0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+body{display:flex;flex-direction:column}
+
+.hero{background:#1a0000;padding:12px 14px 10px;border-bottom:2px solid #CC0000;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.hero img{width:38px;height:38px;object-fit:contain;image-rendering:pixelated}
 .hero-title{font-size:17px;font-weight:800;color:#FFCB05;line-height:1.1}
 .hero-sub{font-size:10px;color:rgba(255,255,255,0.5);margin-top:2px}
-.prog-bar-wrap{background:#111122;padding:8px 14px;border-bottom:1px solid #222}
+.sync-dot{width:8px;height:8px;border-radius:50%;margin-left:auto;flex-shrink:0;transition:background .3s}
+.sync-dot.ok{background:#27AE60}
+.sync-dot.syncing{background:#FFCB05;animation:pulse 1s infinite}
+.sync-dot.err{background:#CC0000}
+.sync-dot.none{background:#333}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+.prog-bar-wrap{background:#111122;padding:8px 14px;border-bottom:1px solid #222;flex-shrink:0}
 .prog-nums{display:flex;justify-content:space-between;font-size:11px;font-weight:700;margin-bottom:4px}
 .prog-track{height:7px;background:#1a1a30;border-radius:7px;overflow:hidden}
 .prog-fill{height:100%;background:linear-gradient(90deg,#FFCB05,#27AE60);border-radius:7px;transition:width .4s}
-.prog-pct{font-size:10px;color:#666;text-align:right;margin-top:2px}
-.controls{background:#0d0d1a;padding:8px 10px;border-bottom:1px solid #1a1a2e;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-.controls input{background:#12122a;border:1px solid #2a2a45;border-radius:8px;padding:6px 10px;color:#f0f0f0;font-size:12px;flex:1;min-width:120px;outline:none}
-.controls input:focus{border-color:#FFCB05}
+.prog-pct{font-size:10px;color:#555;text-align:right;margin-top:2px}
+
+.controls{background:#0d0d1a;padding:8px 10px;border-bottom:1px solid #1a1a2e;display:flex;flex-wrap:wrap;gap:6px;align-items:center;flex-shrink:0}
+.controls input[type=search]{background:#12122a;border:1px solid #2a2a45;border-radius:8px;padding:6px 10px;color:#f0f0f0;font-size:12px;flex:1;min-width:120px;outline:none}
+.controls input[type=search]:focus{border-color:#FFCB05}
 .controls select{background:#12122a;border:1px solid #2a2a45;border-radius:8px;padding:6px 8px;color:#f0f0f0;font-size:11px;outline:none;cursor:pointer}
-.fbtn{background:#12122a;border:1px solid #2a2a45;border-radius:7px;padding:5px 10px;color:#888;font-size:11px;font-weight:700;cursor:pointer}
+.fbtn{background:#12122a;border:1px solid #2a2a45;border-radius:7px;padding:5px 10px;color:#888;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap}
 .fbtn.fa{background:#FFCB05;color:#000;border-color:#FFCB05}
 .fbtn.fo{background:#1a3d2a;color:#27AE60;border-color:#27AE60}
 .fbtn.fm{background:#3d1a1a;color:#ff6666;border-color:#880000}
 .cnt{font-size:10px;color:#555;margin-left:auto}
+
+.grid-wrap{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(86px,1fr));gap:7px;padding:10px;background:#070710}
-.card{background:#1a1a2e;border-radius:10px;padding:7px 4px 6px;text-align:center;cursor:pointer;border:2px solid transparent;transition:transform .12s,border-color .15s;position:relative;user-select:none}
+.card{background:#1a1a2e;border-radius:10px;padding:7px 4px 6px;text-align:center;cursor:pointer;border:2px solid transparent;transition:transform .12s,border-color .15s;position:relative;user-select:none;-webkit-user-select:none}
 .card:active{transform:scale(0.92)}
 .card.owned{border-color:rgba(39,174,96,0.6);background:#0e1e14}
 .card.missing{border-color:rgba(180,0,0,0.4);background:#1e0e0e}
@@ -36,54 +61,96 @@ body-wrap{display:block}
 .cname.owned{color:#7ae8a0}
 .cname.missing{color:#ff8888}
 .empty{grid-column:1/-1;text-align:center;padding:40px;color:#444;font-size:13px}
-.toast{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);background:#1a1a2e;border:1px solid #FFCB05;border-radius:20px;padding:8px 18px;font-size:12px;font-weight:700;color:#fff;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap;z-index:10}
+
+/* Toast */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1a1a2e;border:1px solid #FFCB05;border-radius:20px;padding:8px 18px;font-size:12px;font-weight:700;color:#fff;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap;z-index:100}
 .toast.show{opacity:1}
+
+/* Modal GitHub */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px}
+.overlay.hidden{display:none}
+.modal{background:#1a1a2e;border:1px solid #2a2a45;border-radius:14px;padding:20px;width:100%;max-width:340px}
+.modal h2{font-size:14px;font-weight:800;color:#FFCB05;margin-bottom:6px}
+.modal p{font-size:11px;color:#888;margin-bottom:14px;line-height:1.5}
+.modal input{width:100%;background:#0d0d1a;border:1px solid #2a2a45;border-radius:8px;padding:10px 12px;color:#f0f0f0;font-size:12px;font-family:monospace;outline:none;margin-bottom:10px}
+.modal input:focus{border-color:#FFCB05}
+.modal-btns{display:flex;gap:8px}
+.modal-btns button{flex:1;padding:9px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:none}
+.btn-save{background:#FFCB05;color:#000}
+.btn-skip{background:#2a2a45;color:#888}
+.modal a{color:#4a9eff;font-size:10px;display:block;margin-top:10px;text-align:center}
 </style>
+</head>
+<body>
 
-<div class="app" id="app">
-  <div class="hero">
-    <img src="https://cdn.jsdelivr.net/gh/PokeAPI/sprites@master/sprites/items/poke-ball.png" alt="pokeball" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 40 40%22><circle cx=%2220%22 cy=%2220%22 r=%2219%22 fill=%22%23CC0000%22/><rect y=%2218%22 width=%2240%22 height=%224%22 fill=%22%23111%22/><circle cx=%2220%22 cy=%2220%22 r=%226%22 fill=%22%23111%22/><circle cx=%2220%22 cy=%2220%22 r=%223.5%22 fill=%22white%22/></svg>'">
-    <div>
-      <div class="hero-title">GigaDex</div>
-      <div class="hero-sub">Collection Pokémon — Emeric</div>
+<!-- GitHub Setup Modal -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h2>🔗 Sync GitHub</h2>
+    <p>Entre ton token GitHub pour sauvegarder ta collection directement dans ton fichier <code>index.html</code>.</p>
+    <input type="password" id="token-input" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off" autocorrect="off" spellcheck="false">
+    <div style="font-size:10px;color:#555;margin-bottom:12px">Le token est stocké uniquement sur ton appareil.</div>
+    <div class="modal-btns">
+      <button class="btn-save" onclick="saveToken()">Connecter</button>
+      <button class="btn-skip" onclick="closeModal()">Plus tard</button>
     </div>
+    <a href="https://github.com/settings/tokens/new?scopes=repo&description=GigaDex" target="_blank">Générer un token GitHub →</a>
   </div>
-
-  <div class="prog-bar-wrap">
-    <div class="prog-nums">
-      <span style="color:#27AE60" id="pown">— possédés</span>
-      <span style="color:#ff6666" id="pmiss">— manquants</span>
-      <span style="color:#555" id="ptot">1025 total</span>
-    </div>
-    <div class="prog-track"><div class="prog-fill" id="pfill" style="width:0%"></div></div>
-    <div class="prog-pct" id="ppct">0%</div>
-  </div>
-
-  <div class="controls">
-    <input type="search" id="search" placeholder="Rechercher un Pokémon..." oninput="applyF()" autocomplete="off">
-    <select id="gen" onchange="applyF()">
-      <option value="0">Toutes les gens</option>
-      <option value="1">Kanto (1-151)</option>
-      <option value="2">Johto (152-251)</option>
-      <option value="3">Hoenn (252-386)</option>
-      <option value="4">Sinnoh (387-493)</option>
-      <option value="5">Unova (494-649)</option>
-      <option value="6">Kalos (650-721)</option>
-      <option value="7">Alola (722-809)</option>
-      <option value="8">Galar (810-905)</option>
-      <option value="9">Paldea (906-1025)</option>
-    </select>
-    <button class="fbtn fa" id="ba" onclick="setF('all')">Tous</button>
-    <button class="fbtn" id="bo" onclick="setF('owned')">Possédés</button>
-    <button class="fbtn" id="bm" onclick="setF('missing')">Manquants</button>
-    <span class="cnt" id="cnt"></span>
-  </div>
-
-  <div class="grid" id="grid"></div>
-  <div class="toast" id="toast"></div>
 </div>
 
+<div class="hero">
+  <img src="https://cdn.jsdelivr.net/gh/PokeAPI/sprites@master/sprites/items/poke-ball.png" alt="pokeball" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 40 40%22><circle cx=%2220%22 cy=%2220%22 r=%2219%22 fill=%22%23CC0000%22/><rect y=%2218%22 width=%2240%22 height=%224%22 fill=%22%23111%22/><circle cx=%2220%22 cy=%2220%22 r=%226%22 fill=%22%23111%22/><circle cx=%2220%22 cy=%2220%22 r=%223.5%22 fill=%22white%22/></svg>'">
+  <div>
+    <div class="hero-title">GigaDex</div>
+    <div class="hero-sub">Collection Pokémon — Emeric</div>
+  </div>
+  <div class="sync-dot none" id="sync-dot" onclick="showModal()" title="Statut sync GitHub"></div>
+</div>
+
+<div class="prog-bar-wrap">
+  <div class="prog-nums">
+    <span style="color:#27AE60" id="pown">— possédés</span>
+    <span style="color:#ff6666" id="pmiss">— manquants</span>
+    <span style="color:#555">1025 total</span>
+  </div>
+  <div class="prog-track"><div class="prog-fill" id="pfill" style="width:0%"></div></div>
+  <div class="prog-pct" id="ppct">0%</div>
+</div>
+
+<div class="controls">
+  <input type="search" id="search" placeholder="Rechercher un Pokémon..." oninput="applyF()" autocomplete="off">
+  <select id="gen" onchange="applyF()">
+    <option value="0">Toutes les gens</option>
+    <option value="1">Kanto (1-151)</option>
+    <option value="2">Johto (152-251)</option>
+    <option value="3">Hoenn (252-386)</option>
+    <option value="4">Sinnoh (387-493)</option>
+    <option value="5">Unova (494-649)</option>
+    <option value="6">Kalos (650-721)</option>
+    <option value="7">Alola (722-809)</option>
+    <option value="8">Galar (810-905)</option>
+    <option value="9">Paldea (906-1025)</option>
+  </select>
+  <button class="fbtn fa" id="ba" onclick="setF('all')">Tous</button>
+  <button class="fbtn" id="bo" onclick="setF('owned')">Possédés</button>
+  <button class="fbtn" id="bm" onclick="setF('missing')">Manquants</button>
+  <span class="cnt" id="cnt"></span>
+</div>
+
+<div class="grid-wrap">
+  <div class="grid" id="grid"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
 <script>
+const GITHUB_USER='renardemeric';
+const GITHUB_REPO='gigadex';
+const GITHUB_FILE='index.html';
+const GITHUB_BRANCH='main';
+const SK='gdx3';
+const TK='gdx_token';
+
 const GEN=[[1,151],[152,251],[252,386],[387,493],[494,649],[650,721],[722,809],[810,905],[906,1025]];
 const NAMES={29:'Nidoran♀',32:'Nidoran♂',83:"Farfetch'd",122:'Mr. Mime',250:'Ho-Oh',439:'Mime Jr.',772:'Type: Null',785:'Tapu Koko',786:'Tapu Lele',787:'Tapu Bulu',788:'Tapu Fini',865:"Sirfetch'd",866:'Mr. Rime',984:'Great Tusk',985:'Scream Tail',986:'Brute Bonnet',987:'Flutter Mane',988:'Slither Wing',989:'Sandy Shocks',990:'Iron Treads',991:'Iron Bundle',992:'Iron Hands',993:'Iron Jugulis',994:'Iron Moth',995:'Iron Thorns',1001:'Wo-Chien',1002:'Chien-Pao',1003:'Ting-Lu',1004:'Chi-Yu',1005:'Roaring Moon',1006:'Iron Valiant',1009:'Walking Wake',1010:'Iron Leaves',1020:'Gouging Fire',1021:'Raging Bolt',1022:'Iron Boulder',1023:'Iron Crown'};
 
@@ -96,17 +163,103 @@ const pokemon=RAW.split('|').map(line=>{
   return{id:num,slug,name,def:def==='1'};
 });
 
-const SK='gdx2';
-let owned={};
-try{const s=localStorage.getItem(SK);if(s)owned=JSON.parse(s);}catch(e){}
-pokemon.forEach(p=>{if(!(p.id in owned))owned[p.id]=p.def;});
-function save(){try{localStorage.setItem(SK,JSON.stringify(owned));}catch(e){}}
+const SK='gdx3',TK_KEY='gdx_token';
+let owned={},fileSha='';
 
+function loadLocal(){
+  try{const s=localStorage.getItem(SK);if(s)owned=JSON.parse(s);}catch(e){}
+  pokemon.forEach(p=>{if(!(p.id in owned))owned[p.id]=p.def;});
+}
+function saveLocal(){
+  try{localStorage.setItem(SK,JSON.stringify(owned));}catch(e){}
+}
+function getToken(){return localStorage.getItem(TK_KEY)||'';}
+function setToken(t){localStorage.setItem(TK_KEY,t);}
+
+function setSyncDot(state){
+  const d=document.getElementById('sync-dot');
+  d.className='sync-dot '+state;
+  d.title={ok:'Synchronisé avec GitHub',syncing:'Synchronisation...',err:'Erreur — appuie pour reconfigurer',none:'Non connecté — appuie pour configurer'}[state];
+}
+
+// ── GitHub API ───────────────────────────────────────────────────────────────
+const API=`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${GITHUB_FILE}`;
+
+async function fetchSha(){
+  const tok=getToken();if(!tok)return;
+  try{
+    const r=await fetch(API,{headers:{'Authorization':'token '+tok,'Accept':'application/vnd.github.v3+json'}});
+    if(!r.ok)throw new Error();
+    const d=await r.json();
+    fileSha=d.sha;
+    // Read owned state from GitHub file
+    const content=atob(d.content.replace(/\n/g,''));
+    const m=content.match(/\/\*GDXDATA:(.*?):GDXDATA\*\//);
+    if(m){
+      const remote=JSON.parse(m[1]);
+      owned=remote;
+      saveLocal();
+      updateStats();applyF();
+    }
+    setSyncDot('ok');
+  }catch(e){setSyncDot('err');}
+}
+
+let syncTimer=null;
+function schedulSync(){
+  clearTimeout(syncTimer);
+  syncTimer=setTimeout(pushToGitHub,1200);
+}
+
+async function pushToGitHub(){
+  const tok=getToken();if(!tok)return;
+  setSyncDot('syncing');
+  try{
+    // Get current file content
+    const r=await fetch(API,{headers:{'Authorization':'token '+tok,'Accept':'application/vnd.github.v3+json'}});
+    if(!r.ok)throw new Error('fetch failed');
+    const d=await r.json();
+    fileSha=d.sha;
+    let content=atob(d.content.replace(/\n/g,''));
+
+    // Inject or replace GDXDATA marker
+    const marker=`/*GDXDATA:${JSON.stringify(owned)}:GDXDATA*/`;
+    if(content.includes('/*GDXDATA:')){
+      content=content.replace(/\/\*GDXDATA:.*?:GDXDATA\*\//,marker);
+    } else {
+      content=content.replace('</script>',marker+'\n</script>');
+    }
+
+    const encoded=btoa(unescape(encodeURIComponent(content)));
+    const put=await fetch(API,{
+      method:'PUT',
+      headers:{'Authorization':'token '+tok,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'},
+      body:JSON.stringify({message:'GigaDex update',content:encoded,sha:fileSha,branch:GITHUB_BRANCH})
+    });
+    if(!put.ok)throw new Error('put failed');
+    const pd=await put.json();
+    fileSha=pd.content.sha;
+    setSyncDot('ok');
+  }catch(e){
+    setSyncDot('err');
+    toast('Erreur sync GitHub');
+  }
+}
+
+// ── Modal ────────────────────────────────────────────────────────────────────
+function showModal(){document.getElementById('overlay').classList.remove('hidden');}
+function closeModal(){document.getElementById('overlay').classList.add('hidden');}
+function saveToken(){
+  const t=document.getElementById('token-input').value.trim();
+  if(!t)return;
+  setToken(t);closeModal();
+  fetchSha();
+}
+
+// ── App logic ────────────────────────────────────────────────────────────────
 let af='all';
 
-function imgUrl(id){
-  return`https://cdn.jsdelivr.net/gh/PokeAPI/sprites@master/sprites/pokemon/${id}.png`;
-}
+function imgUrl(id){return`https://cdn.jsdelivr.net/gh/PokeAPI/sprites@master/sprites/pokemon/${id}.png`;}
 
 function setF(f){
   af=f;
@@ -132,7 +285,10 @@ function applyF(){
 }
 
 function toggle(id){
-  owned[id]=!owned[id];save();updateStats();
+  owned[id]=!owned[id];
+  saveLocal();
+  schedulSync();
+  updateStats();
   const card=document.querySelector(`.card[data-id="${id}"]`);
   if(!card)return;
   const o=owned[id];
@@ -142,7 +298,7 @@ function toggle(id){
   card.querySelector('.cname').className='cname '+(o?'owned':'missing');
   if((af==='owned'&&!o)||(af==='missing'&&o)){
     card.style.transition='opacity .25s';card.style.opacity='0';
-    setTimeout(()=>{card.remove();},250);
+    setTimeout(()=>card.remove(),250);
   }
   const name=pokemon.find(p=>p.id===id)?.name||'';
   toast(owned[id]?'Ajouté : '+name:'Retiré : '+name);
@@ -151,7 +307,7 @@ function toggle(id){
 function toast(msg){
   const t=document.getElementById('toast');
   t.textContent=msg;t.classList.add('show');
-  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),1600);
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),1800);
 }
 
 function updateStats(){
@@ -173,12 +329,24 @@ function render(list){
       <div class="dot ${o?'owned':'missing'}"></div>
       <div class="cnum">#${String(p.id).padStart(4,'0')}</div>
       <div class="iw" style="${o?'':'opacity:.4;filter:grayscale(80%)'}">
-        <img src="${imgUrl(p.id)}" alt="${p.name}" loading="lazy" onerror="this.parentNode.innerHTML='<span style=font-size:28px>?</span>'">
+        <img src="${imgUrl(p.id)}" alt="${p.name}" loading="lazy" onerror="this.parentNode.innerHTML='<span style=font-size:24px>?</span>'">
       </div>
       <div class="cname ${o?'owned':'missing'}">${p.name}</div>
     </div>`;
   }).join('');
 }
 
-updateStats();applyF();
+// ── Init ─────────────────────────────────────────────────────────────────────
+loadLocal();
+updateStats();
+applyF();
+
+if(getToken()){
+  fetchSha();
+} else {
+  setSyncDot('none');
+  showModal();
+}
 </script>
+</body>
+</html>
