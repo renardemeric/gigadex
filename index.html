@@ -61,7 +61,7 @@ body{display:flex;flex-direction:column}
 .detail-icon{position:absolute;bottom:18px;right:3px;font-size:8px;opacity:0.5}
 .cnum{font-size:8px;color:#555;font-weight:700;margin-bottom:2px}
 .iw{width:68px;height:68px;margin:0 auto;display:flex;align-items:center;justify-content:center}
-.iw img{width:68px;height:68px;object-fit:contain;image-rendering:pixelated}
+.iw img{width:68px;height:68px;object-fit:contain;image-rendering:pixelated;-webkit-touch-callout:none;pointer-events:none;user-select:none;-webkit-user-select:none}
 .cname{font-size:9px;font-weight:700;margin-top:3px;line-height:1.25;word-break:break-word}
 .cname.owned{color:#7ae8a0}.cname.pending{color:#f0a050}.cname.missing{color:#ff8888}
 .card-cls{font-size:7.5px;color:#444;margin-top:1px;height:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -409,7 +409,7 @@ function bulkSetCls(c){
 function toggle(id){
   if(selectMode){toggleSelect(id);return;}
   const cur=status[id]||'missing';
-  const next={missing:'owned',owned:'pending',pending:'missing'}[cur];
+  const next={missing:'pending',pending:'owned',owned:'missing'}[cur];
   status[id]=next;
   saveLocal();scheduleSync();updateStats();
   const card=document.querySelector(`.card[data-id="${id}"]`);
@@ -538,11 +538,11 @@ function render(list){
     const det=details[p.id]||{};
     const iwStyle=st==='missing'?'opacity:.4;filter:grayscale(80%)':st==='pending'?'opacity:.75;filter:saturate(60%)':'';
     const isSel=selected.has(p.id);
-    return`<div class="card ${st}${isSel?' selected':''}" data-id="${p.id}" onclick="toggle(${p.id})">
+    return`<div class="card ${st}" data-id="${p.id}">
       <div class="dot ${st}"></div>
       <div class="cnum">#${String(p.id).padStart(4,'0')}</div>
       <div class="iw" style="${iwStyle}">
-        <img src="${imgUrl(p.id)}" alt="${p.name}" loading="lazy" onerror="this.parentNode.innerHTML='<span style=font-size:22px>?</span>'">
+        <img src="${imgUrl(p.id)}" alt="${p.name}" loading="lazy" draggable="false" oncontextmenu="return false" onerror="this.parentNode.innerHTML='<span style=font-size:22px>?</span>'">
       </div>
       <div class="cname ${st}">${p.name}</div>
       <div class="card-cls">${det.cls||''}</div>
@@ -550,22 +550,33 @@ function render(list){
     </div>`;
   }).join('');
 
-  // Long press → select mode
+  // Tap + long press interactions
   document.querySelectorAll('.card').forEach(card=>{
-    let timer;
+    let timer, longPressed=false;
     const id=parseInt(card.dataset.id);
+
+    const tryOpenPanel=()=>{
+      const st=status[id]||'missing';
+      if(st==='pending'||st==='owned') openPanel(id);
+    };
+
     card.addEventListener('touchstart',()=>{
-      timer=setTimeout(()=>{
-        if(!selectMode)enterSelectMode(id);
-        else toggleSelect(id);
-      },450);
+      longPressed=false;
+      timer=setTimeout(()=>{longPressed=true;tryOpenPanel();},500);
     },{passive:true});
     card.addEventListener('touchend',()=>clearTimeout(timer),{passive:true});
     card.addEventListener('touchmove',()=>clearTimeout(timer),{passive:true});
+    card.addEventListener('click',()=>{
+      if(longPressed){longPressed=false;return;}
+      toggle(id);
+    });
     // Right-click → detail panel (desktop)
-    card.addEventListener('contextmenu',(e)=>{e.preventDefault();if(!selectMode)openPanel(id);});
+    card.addEventListener('contextmenu',(e)=>{e.preventDefault();tryOpenPanel();});
     // Long click desktop
-    card.addEventListener('mousedown',()=>{timer=setTimeout(()=>{if(!selectMode)enterSelectMode(id);else toggleSelect(id);},450);});
+    card.addEventListener('mousedown',()=>{
+      longPressed=false;
+      timer=setTimeout(()=>{longPressed=true;tryOpenPanel();},500);
+    });
     card.addEventListener('mouseup',()=>clearTimeout(timer));
   });
 }
